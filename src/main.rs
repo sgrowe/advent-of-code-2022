@@ -1,11 +1,16 @@
+use crate::utils::read_input;
+
 mod day_01;
+mod utils;
 
 fn main() {
     let days = [day_01::main];
 
-    for (i, day) in days.into_iter().enumerate() {
-        println!("\n\nDay {}:", i + 1);
+    for (i, solve_day) in days.into_iter().enumerate() {
+        let day = i + 1;
 
-        day();
+        println!("\n\nDay {}:", day);
+
+        solve_day(read_input(day));
     }
 }
