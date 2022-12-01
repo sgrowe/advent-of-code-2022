@@ -11,6 +11,6 @@ fn main() {
 
         println!("\n\nDay {}:", day);
 
-        solve_day(read_input(day));
+        solve_day(&read_input(day));
     }
 }
