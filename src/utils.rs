@@ -10,3 +10,10 @@ where
 {
     s.trim().lines().map(|l| l.parse::<F>().unwrap())
 }
+
+pub fn parse_as<F: FromStr>(s: &str) -> F
+where
+    <F as FromStr>::Err: Debug,
+{
+    s.parse::<F>().unwrap()
+}

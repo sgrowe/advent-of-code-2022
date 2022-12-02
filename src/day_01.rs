@@ -91,7 +91,7 @@ mod tests {
 9000
 
 10000
-    ";
+";
 
     #[test]
     fn test_part_one() {
