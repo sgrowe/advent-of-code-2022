@@ -1,8 +1,16 @@
+use crate::solution::Solution;
+
 pub fn main(input: &str) {
+    solution(input).print();
+}
+
+fn solution(input: &str) -> Solution<usize, usize> {
     let top_three = top_three_calorie_counts(input);
 
-    println!("Part one: {}", top_three[0]);
-    println!("Part two: {}", top_three.into_iter().sum::<usize>());
+    Solution {
+        part_one: top_three[0],
+        part_two: top_three.into_iter().sum::<usize>(),
+    }
 }
 
 fn top_three_calorie_counts(input: &str) -> [usize; 3] {
@@ -95,9 +103,9 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        assert_eq!(top_three_calorie_counts(SAMPLE.trim())[0], 24000);
+        assert_eq!(solution(SAMPLE.trim()).part_one, 24000);
 
-        assert_eq!(top_three_calorie_counts(&read_input(1))[0], 69836);
+        assert_eq!(solution(&read_input(1)).part_one, 69836);
     }
 
     #[test]
@@ -107,11 +115,6 @@ mod tests {
             [24000, 11000, 10000]
         );
 
-        assert_eq!(
-            top_three_calorie_counts(&read_input(1))
-                .into_iter()
-                .sum::<usize>(),
-            207968
-        );
+        assert_eq!(solution(&read_input(1)).part_two, 207968);
     }
 }

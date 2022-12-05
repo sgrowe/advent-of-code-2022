@@ -1,21 +1,12 @@
 use std::str::FromStr;
 
-use crate::utils::parse_as;
+use crate::{solution::Solution, utils::parse_as};
 
 pub fn main(input: &str) {
-    let Scores { part_one, part_two } = total_scores(input);
-
-    println!("Part one: {}", part_one);
-    println!("Part two: {}", part_two);
+    total_scores(input).print();
 }
 
-#[derive(Debug, Clone, Copy)]
-struct Scores {
-    part_one: usize,
-    part_two: usize,
-}
-
-fn total_scores(input: &str) -> Scores {
+fn total_scores(input: &str) -> Solution<usize, usize> {
     let mut part_one = 0;
     let mut part_two = 0;
 
@@ -24,7 +15,7 @@ fn total_scores(input: &str) -> Scores {
         part_two += parse_as::<RoundV2>(l).as_round().score();
     }
 
-    Scores { part_one, part_two }
+    Solution { part_one, part_two }
 }
 
 #[derive(Debug, Clone, Copy)]

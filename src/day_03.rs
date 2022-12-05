@@ -1,18 +1,23 @@
-use crate::groups_of::groups_of;
+use crate::{groups_of::groups_of, solution::Solution};
 
 pub fn main(input: &str) {
-    println!("Part one: {}", sum_of_duplicate_priorities(input));
-    println!("Part two: {}", sum_of_badge_priorities(input));
+    solution(input).print();
 }
 
-fn sum_of_duplicate_priorities(input: &str) -> usize {
-    input.lines().map(|l| duplicate_item(l.as_bytes())).sum()
-}
+fn solution(input: &str) -> Solution<usize, usize> {
+    let mut sum_of_duplicates = 0;
+    let mut sum_of_badges = 0;
 
-fn sum_of_badge_priorities(input: &str) -> usize {
-    groups_of(input.lines().map(|l| l.as_bytes()))
-        .map(groups_badge)
-        .sum()
+    for group in groups_of(input.lines().map(|l| l.as_bytes())) {
+        sum_of_badges += groups_badge(group);
+
+        sum_of_duplicates += group.into_iter().map(duplicate_item).sum::<usize>();
+    }
+
+    Solution {
+        part_one: sum_of_duplicates,
+        part_two: sum_of_badges,
+    }
 }
 
 fn groups_badge(group: [&[u8]; 3]) -> usize {
@@ -81,15 +86,15 @@ CrZsJsPPZsGzwwsLwLmpwMDw
 
     #[test]
     fn test_part_one() {
-        assert_eq!(sum_of_duplicate_priorities(SAMPLE.trim()), 157);
+        assert_eq!(solution(SAMPLE.trim()).part_one, 157);
 
-        assert_eq!(sum_of_duplicate_priorities(&read_input(3)), 7980);
+        assert_eq!(solution(&read_input(3)).part_one, 7980);
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(sum_of_badge_priorities(SAMPLE.trim()), 70);
+        assert_eq!(solution(SAMPLE.trim()).part_two, 70);
 
-        assert_eq!(sum_of_badge_priorities(&read_input(3)), 2881);
+        assert_eq!(solution(&read_input(3)).part_two, 2881);
     }
 }
