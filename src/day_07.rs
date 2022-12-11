@@ -24,8 +24,8 @@ fn solution(input: &str) -> Solution<usize, usize> {
             }
             OutputLine::Cd(dir) => path.push(dir),
             OutputLine::Ls => {}
-            OutputLine::File { size, name } => path.add_file_size(size),
-            OutputLine::Dir(dir) => {}
+            OutputLine::File { size } => path.add_file_size(size),
+            OutputLine::Dir(_dir) => {}
         }
     }
 
@@ -81,7 +81,7 @@ impl<'a> CurPath<'a> {
 enum OutputLine<'a> {
     Cd(&'a str),
     Ls,
-    File { size: usize, name: &'a str },
+    File { size: usize },
     Dir(&'a str),
 }
 
@@ -99,11 +99,10 @@ impl<'a> From<&'a str> for OutputLine<'a> {
             if let Some(dir) = s.strip_prefix("dir ") {
                 return OutputLine::Dir(dir);
             } else {
-                let (size, name) = s.split_once(' ').unwrap();
+                let (size, _name) = s.split_once(' ').unwrap();
 
                 return OutputLine::File {
                     size: parse_as(size),
-                    name,
                 };
             }
         }
