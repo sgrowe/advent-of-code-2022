@@ -9,6 +9,7 @@ mod day_06;
 mod day_07;
 mod day_08;
 mod day_09;
+mod day_10;
 mod groups_of;
 mod solution;
 mod utils;
@@ -24,6 +25,7 @@ fn main() {
         day_07::main,
         day_08::main,
         day_09::main,
+        day_10::main,
     ];
 
     for (i, solve_day) in days.into_iter().enumerate() {
