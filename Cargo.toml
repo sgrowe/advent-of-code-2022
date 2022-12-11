@@ -10,3 +10,4 @@ edition = "2021"
 
 [dev-dependencies]
 test-case = "2.2.2"
+similar-asserts = "1.4.2"

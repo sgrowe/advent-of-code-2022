@@ -1,10 +1,12 @@
+use std::fmt::{Display, Formatter, Write};
+
 use crate::solution::Solution;
 
 pub fn main(input: &str) {
     solution(input).print();
 }
 
-fn solution(input: &str) -> Solution<isize, usize> {
+fn solution(input: &str) -> Solution<isize, CRT> {
     let mut cpu = CPU::new();
 
     for instr in input.lines().map(Instr::from) {
@@ -23,7 +25,7 @@ fn solution(input: &str) -> Solution<isize, usize> {
 
     Solution {
         part_one: cpu.sum_special_signals,
-        part_two: 0,
+        part_two: cpu.crt,
     }
 }
 
@@ -32,6 +34,7 @@ struct CPU {
     register: isize,
     cycle_no: isize,
     sum_special_signals: isize,
+    crt: CRT,
 }
 
 impl CPU {
@@ -40,11 +43,14 @@ impl CPU {
             register: 1,
             cycle_no: 0,
             sum_special_signals: 0,
+            crt: CRT::new(),
         }
     }
 
     fn next_cycle(&mut self) {
         self.cycle_no += 1;
+
+        self.crt.next_cycle(self.register);
 
         if (self.cycle_no - 20) % 40 == 0 {
             self.sum_special_signals += self.cycle_no * self.register;
@@ -73,6 +79,46 @@ impl From<&str> for Instr {
         }
 
         panic!("Unknown instruction")
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct CRT {
+    pixels: [[bool; 40]; 6],
+    pos: usize,
+}
+
+impl CRT {
+    fn new() -> Self {
+        Self {
+            pixels: [[false; 40]; 6],
+            pos: 0,
+        }
+    }
+
+    fn next_cycle(&mut self, register: isize) {
+        let row = self.pos / 40;
+        let col = self.pos % 40;
+
+        self.pixels[row][col] = col.abs_diff(register as usize) <= 1;
+
+        self.pos += 1;
+    }
+}
+
+impl Display for CRT {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        f.write_char('\n')?;
+
+        for row in self.pixels {
+            for pixel in row {
+                f.write_char(if pixel { '#' } else { '.' })?;
+            }
+
+            f.write_char('\n')?;
+        }
+
+        Ok(())
     }
 }
 
@@ -236,5 +282,33 @@ noop
         assert_eq!(solution(SAMPLE.trim()).part_one, 13140);
 
         assert_eq!(solution(&read_input(10)).part_one, 14040);
+    }
+
+    #[test]
+    fn part_two() {
+        let expected = "
+##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....
+";
+
+        similar_asserts::assert_eq!(format!("{}", solution(SAMPLE.trim()).part_two), expected);
+
+        let expected_two = "
+####..##...##....##.####...##.####.#....
+...#.#..#.#..#....#....#....#.#....#....
+..#..#....#.......#...#.....#.###..#....
+.#...#.##.#.......#..#......#.#....#....
+.....#..#.#..#.#..#.#....#..#.#....#....
+####..###..##...##..####..##..#....####.
+";
+
+        similar_asserts::assert_eq!(
+            format!("{}", solution(&read_input(10)).part_two),
+            expected_two
+        );
     }
 }
