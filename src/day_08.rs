@@ -1,4 +1,5 @@
 use crate::solution::Solution;
+use std::cmp::max;
 
 pub fn main(input: &str) {
     solution(input).print();
@@ -7,11 +8,10 @@ pub fn main(input: &str) {
 fn solution(input: &str) -> Solution<usize, usize> {
     let map = Map::new(input.trim().as_bytes());
 
-    Solution {
-        part_one: map.trees_visible(),
-        part_two: map.top_scenic_score(),
-    }
+    map.solution()
 }
+
+type Coord = (usize, usize);
 
 struct Map<'a> {
     width: usize,
@@ -32,43 +32,52 @@ impl<'a> Map<'a> {
         2 * self.height + (2 * (self.width - 3))
     }
 
-    fn trees_visible(&self) -> usize {
+    fn solution(&self) -> Solution<usize, usize> {
         let mut trees_visible = self.trees_around_edge();
+        let mut top_score = 0;
 
-        for i in 1..(self.width - 2) {
-            for j in 1..(self.height - 1) {
-                if self.is_tree_visible(i, j) {
+        for x in 1..(self.width - 2) {
+            for y in 1..(self.height - 1) {
+                top_score = max(top_score, self.scenic_score(x, y));
+
+                if self.is_tree_visible(x, y) {
                     trees_visible += 1;
                 }
             }
         }
 
-        trees_visible
-    }
-
-    fn top_scenic_score(&self) -> usize {
-        let mut top_score = 0;
-
-        for i in 1..(self.width - 2) {
-            for j in 1..(self.height - 1) {
-                top_score = std::cmp::max(top_score, self.scenic_score(i, j));
-            }
+        Solution {
+            part_one: trees_visible,
+            part_two: top_score,
         }
-
-        top_score
     }
 
     fn get(&self, x: usize, y: usize) -> u8 {
         self.map[(y * self.width) + x]
     }
 
+    fn all_dirs_from_point(
+        &self,
+        x: usize,
+        y: usize,
+    ) -> (
+        impl Iterator<Item = Coord>,
+        impl Iterator<Item = Coord>,
+        impl Iterator<Item = Coord>,
+        impl Iterator<Item = Coord>,
+    ) {
+        let left = (0..x).map(move |x| (x, y)).rev();
+        let right = (x + 1..self.width).map(move |x| (x, y));
+        let top = (0..y).map(move |y| (x, y)).rev();
+        let bottom = (y + 1..self.height).map(move |y| (x, y));
+
+        (left, right, top, bottom)
+    }
+
     fn is_tree_visible(&self, x: usize, y: usize) -> bool {
         let tree_height = self.get(x, y);
 
-        let left = (0..x).map(|x| (x, y));
-        let right = (x + 1..self.width).map(|x| (x, y));
-        let top = (0..y).map(|y| (x, y));
-        let bottom = (y + 1..self.height).map(|y| (x, y));
+        let (left, right, top, bottom) = self.all_dirs_from_point(x, y);
 
         self.is_tallest_amongst(tree_height, left)
             || self.is_tallest_amongst(tree_height, right)
@@ -78,7 +87,7 @@ impl<'a> Map<'a> {
 
     fn is_tallest_amongst<I>(&self, tree_height: u8, coords: I) -> bool
     where
-        I: Iterator<Item = (usize, usize)>,
+        I: Iterator<Item = Coord>,
     {
         for (x, y) in coords {
             if self.get(x, y) >= tree_height {
@@ -92,10 +101,7 @@ impl<'a> Map<'a> {
     fn scenic_score(&self, x: usize, y: usize) -> usize {
         let tree_height = self.get(x, y);
 
-        let left = (0..x).map(|x| (x, y)).rev();
-        let right = (x + 1..self.width).map(|x| (x, y));
-        let top = (0..y).map(|y| (x, y)).rev();
-        let bottom = (y + 1..self.height).map(|y| (x, y));
+        let (left, right, top, bottom) = self.all_dirs_from_point(x, y);
 
         self.trees_in_sight(tree_height, left)
             * self.trees_in_sight(tree_height, right)
@@ -105,7 +111,7 @@ impl<'a> Map<'a> {
 
     fn trees_in_sight<I>(&self, tree_height: u8, coords: I) -> usize
     where
-        I: Iterator<Item = (usize, usize)>,
+        I: Iterator<Item = Coord>,
     {
         let mut count = 0;
 

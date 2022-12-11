@@ -9,14 +9,28 @@ fn solution(input: &str) -> Solution<usize, usize> {
 
     let mut i = 0;
 
-    while !is_marker(&data[i..i + 4]) {
-        i += 1;
+    loop {
+        let min_step = min_next_marker_step(&data[i..i + 4]);
+
+        i += min_step;
+
+        if min_step == 0 {
+            break;
+        }
     }
 
     let part_one = i + 4;
 
-    while !is_marker(&data[i..i + 14]) {
-        i += 1;
+    // Only once we’ve found 4 distinct characters in a row can we find 14
+    // distinct chars in a row
+    loop {
+        let min_step = min_next_marker_step(&data[i..i + 14]);
+
+        i += min_step;
+
+        if min_step == 0 {
+            break;
+        }
     }
 
     let part_two = i + 14;
@@ -24,7 +38,7 @@ fn solution(input: &str) -> Solution<usize, usize> {
     Solution { part_one, part_two }
 }
 
-fn is_marker(group: &[u8]) -> bool {
+fn min_next_marker_step(group: &[u8]) -> usize {
     let mut i = 0;
 
     while i < group.len() - 1 {
@@ -32,7 +46,7 @@ fn is_marker(group: &[u8]) -> bool {
 
         while j < group.len() {
             if group[i] == group[j] {
-                return false;
+                return i + 1;
             }
 
             j += 1;
@@ -41,7 +55,7 @@ fn is_marker(group: &[u8]) -> bool {
         i += 1;
     }
 
-    true
+    0
 }
 
 #[cfg(test)]
